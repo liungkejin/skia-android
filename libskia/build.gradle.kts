@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.kejin.android.skia"
+    namespace = "com.bhs.android.skia"
     compileSdk = 34
 
     defaultConfig {

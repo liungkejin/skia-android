@@ -5,7 +5,7 @@
 # Sets the minimum CMake version required for this project.
 cmake_minimum_required(VERSION 3.22.1)
 
-project("kejin_skia")
+project("bhs_skia")
 
 set(SKIA_PATH ${CMAKE_SOURCE_DIR}/../../../../skia-android-next-release)
 message("SKIA_PATH: ${SKIA_PATH}")
@@ -23,7 +23,10 @@ set(SKIA_LIBS ${SKIA_PATH}/out/${ABI}/libskia.a)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
-        skia.cpp)
+        skia_font.cpp
+        skia_paint.cpp
+        skia_bmp_canvas.cpp
+)
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         # List libraries link to the target library
