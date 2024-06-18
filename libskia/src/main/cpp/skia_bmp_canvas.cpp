@@ -87,7 +87,7 @@ Java_com_bhs_android_skia_SkBmpCanvas_nReadPixels(JNIEnv *env, jobject thiz, jlo
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_bhs_android_skia_SkBmpCanvas_nSave(JNIEnv *env, jobject thiz, jlong native_ptr) {
-    SK_CANVAS->flush();
+    SK_CANVAS->save();
 }
 
 extern "C"

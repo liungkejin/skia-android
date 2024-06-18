@@ -1,5 +1,7 @@
 package com.bhs.android.skia
 
+import android.graphics.RectF
+
 class SkFont {
     enum class Edging {
         ALIAS,
@@ -35,39 +37,43 @@ class SkFont {
         }
     }
 
-    fun setSize(size: Float) {
+    private fun checkPtr() {
         if (nativePtr == 0L) {
             throw IllegalStateException("SkFont already released!")
         }
+    }
+
+    fun setSize(size: Float) {
+        checkPtr()
         nSetSize(nativePtr, size)
     }
 
     fun setScaleX(scaleX: Float) {
-        if (nativePtr == 0L) {
-            throw IllegalStateException("SkFont already released!")
-        }
+        checkPtr()
         nSetScaleX(nativePtr, scaleX)
     }
 
     fun setSkewX(skewX: Float) {
-        if (nativePtr == 0L) {
-            throw IllegalStateException("SkFont already released!")
-        }
+        checkPtr()
         nSetSkewX(nativePtr, skewX)
     }
 
     fun setEdging(edging: Edging) {
-        if (nativePtr == 0L) {
-            throw IllegalStateException("SkFont already released!")
-        }
+        checkPtr()
         nSetEdging(nativePtr, edging.ordinal)
     }
 
     fun setHinting(hinting: Hinting) {
-        if (nativePtr == 0L) {
-            throw IllegalStateException("SkFont already released!")
-        }
+        checkPtr()
         nSetHinting(nativePtr, hinting.ordinal)
+    }
+
+    private val measureOutput = FloatArray(5)
+    fun measureText(text: String, paint: SkPaint?, outBounds: RectF): Float {
+        checkPtr()
+        nMeasureText(nativePtr, text, paint?.nativePtr?:0L, measureOutput)
+        outBounds.set(measureOutput[1], measureOutput[2], measureOutput[3], measureOutput[4])
+        return measureOutput[0]
     }
 
     private external fun nNew() : Long
@@ -78,4 +84,5 @@ class SkFont {
     private external fun nSetSkewX(nativePtr: Long, scaleX: Float)
     private external fun nSetEdging(nativePtr: Long, edging: Int)
     private external fun nSetHinting(nativePtr: Long, hinting: Int)
+    private external fun nMeasureText(nativePtr: Long, text: String, paintNativePtr: Long, output: FloatArray)
 }

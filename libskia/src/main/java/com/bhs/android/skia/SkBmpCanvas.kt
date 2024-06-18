@@ -224,6 +224,7 @@ class SkBmpCanvas {
             dst.left, dst.top, dst.right, dst.bottom, filterMode.ordinal)
     }
 
+    // 无效
     fun drawImageMatrix(bmp: Bitmap, matrix: Matrix, paint: SkPaint? = null) {
         checkPtr()
 
