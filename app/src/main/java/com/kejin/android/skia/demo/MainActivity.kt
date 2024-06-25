@@ -211,9 +211,11 @@ class MainActivity : AppCompatActivity() {
         val bw = textBounds.width()
         val bh = textBounds.height()
         Log.i("test", "font bounds: $textBounds, fsize: $fsize")
-        bmpCanvas.drawText(text, 540f-bw/2f, 960f+bh/2f-textBounds.bottom, font, paint)
+        val dx = -bw/2f-textBounds.left
+        val dy = bh/2f-textBounds.bottom
+        bmpCanvas.drawText(text, 540f+dx, 960f+dy, font, paint)
 
-        textBounds.offset(540f-bw/2f, 960f+bh/2f-textBounds.bottom)
+        textBounds.offset(540f+dx, 960f+dy)
         paint.setStyle(SkPaint.Style.STROKE)
         bmpCanvas.drawRect(textBounds, paint)
     }
