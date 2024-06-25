@@ -12,7 +12,7 @@ import android.graphics.RectF
  * 即 SkCanvas 总以 SkBitmap 为目标绘图对象
  * 结束绘制后，可以通过 readBitmap() 方法获取绘制结果
  */
-class SkBmpCanvas {
+class SkCanvas {
     enum class PointMode {
         POINTS,
         LINES,
@@ -138,7 +138,17 @@ class SkBmpCanvas {
         nClear(nativePtr, color)
     }
 
-    fun drawColor(color: Int, blendMode: SkBlendMode) {
+    fun clipRect(rectF: RectF, op: SkClipOp, antiAlias: Boolean) {
+        checkPtr()
+        nClipRect(nativePtr, rectF.left, rectF.top, rectF.right, rectF.bottom, op.ordinal, antiAlias)
+    }
+
+    fun clipPath(path: SkPath, op: SkClipOp, antiAlias: Boolean) {
+        checkPtr()
+        nClipPath(nativePtr, path.nativePtr, op.ordinal, antiAlias)
+    }
+
+    fun drawColor(color: Int, blendMode: SkBlendMode = SkBlendMode.SrcOver) {
         checkPtr()
         nDrawColor(nativePtr, color, blendMode.ordinal)
     }
@@ -224,14 +234,16 @@ class SkBmpCanvas {
             dst.left, dst.top, dst.right, dst.bottom, filterMode.ordinal)
     }
 
-    // 无效
-    fun drawImageMatrix(bmp: Bitmap, matrix: Matrix, paint: SkPaint? = null) {
+    fun drawImageMatrix(bmp: Bitmap, matrix: Matrix, filterMode: FilterMode) {
         checkPtr()
 
-        matrix.getValues(mat3x3)
-        nDrawImageMatrix(nativePtr, bmp, mat3x3, paint?.nativePtr?:0L)
+        save()
+        setMatrix(matrix)
+        nDrawImage(nativePtr, bmp, 0f, 0f, filterMode.ordinal)
+        restore()
     }
 
+    // TODO 实现文字换行，对齐
     fun drawText(text: String, x: Float, y: Float, font: SkFont, paint: SkPaint) {
         checkPtr()
 
@@ -273,8 +285,11 @@ class SkBmpCanvas {
     private external fun nClear(nativePtr: Long, color: Int)
     private external fun nDrawColor(nativePtr: Long, color: Int, blendMode: Int)
     private external fun nDiscard(nativePtr: Long)
-    private external fun nDrawPaint(nativePtr: Long, paintNativePtr: Long)
 
+    private external fun nClipRect(nativePtr: Long, left: Float, top: Float, right: Float, bottom: Float, op: Int, antiAlias: Boolean)
+    private external fun nClipPath(nativePtr: Long, pathNativePtr: Long, op: Int, antiAlias: Boolean)
+
+    private external fun nDrawPaint(nativePtr: Long, paintNativePtr: Long)
     private external fun nDrawPoints(nativePtr: Long, mode: Int, pts: FloatArray, pointCount: Int, paintNativePtr: Long)
     private external fun nDrawPoint(nativePtr: Long, x: Float, y: Float, paintNativePtr: Long)
     private external fun nDrawLine(nativePtr: Long, x0: Float, y0: Float, x1: Float, y1: Float, paintNativePtr: Long)
@@ -289,7 +304,7 @@ class SkBmpCanvas {
     private external fun nDrawImageRect(nativePtr: Long, img: Bitmap,
                                         srcLeft: Float, srcTop: Float, srcRight: Float, srcBottom: Float,
                                         dstLeft: Float, dstTop: Float, dstRight: Float, dstBottom: Float, filterMode: Int)
-    private external fun nDrawImageMatrix(nativePtr: Long, img: Bitmap, mat3x3: FloatArray, paintNativePtr: Long)
+//    private external fun nDrawImageMatrix(nativePtr: Long, img: Bitmap, mat3x3: FloatArray, paintNativePtr: Long)
 
     private external fun nDrawText(nativePtr: Long, text: String, x: Float, y: Float, fontNativePtr: Long, paintNativePtr: Long)
 

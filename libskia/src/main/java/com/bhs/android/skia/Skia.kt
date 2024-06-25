@@ -1,5 +1,10 @@
 package com.bhs.android.skia
 
+enum class SkClipOp {
+    DIFFERENCE,
+    INTERSECT
+}
+
 enum class SkBlendMode {
     Clear,         //!< r = 0
     Src,           //!< r = s

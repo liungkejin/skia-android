@@ -23,9 +23,10 @@ set(SKIA_LIBS ${SKIA_PATH}/out/${ABI}/libskia.a)
 
 add_library(${CMAKE_PROJECT_NAME} SHARED
         # List C/C++ source files with relative paths to this CMakeLists.txt.
+        skia_path.cpp
         skia_font.cpp
         skia_paint.cpp
-        skia_bmp_canvas.cpp
+        skia_canvas.cpp
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}

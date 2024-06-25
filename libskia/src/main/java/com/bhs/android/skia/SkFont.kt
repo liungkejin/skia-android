@@ -1,6 +1,7 @@
 package com.bhs.android.skia
 
 import android.graphics.RectF
+import java.io.File
 
 class SkFont {
     enum class Edging {
@@ -14,6 +15,12 @@ class SkFont {
         NORMAL,
         FULL
     }
+    enum class FontStyle {
+        NORMAL,
+        BOLD,
+        ITALIC,
+        BOLD_ITALIC
+    }
     companion object {
         init {
             System.loadLibrary("bhs_skia")
@@ -26,8 +33,12 @@ class SkFont {
         nativePtr = nNew()
     }
 
-    constructor(size: Float) {
-        nativePtr = nNewSize(size)
+    constructor(file: File, index: Int = 0) {
+        nativePtr = nNew2(file.absolutePath, index)
+    }
+
+    constructor(familyName: String, style: FontStyle = FontStyle.NORMAL) {
+        nativePtr = nNew3(familyName, style.ordinal)
     }
 
     fun release() {
@@ -68,6 +79,7 @@ class SkFont {
         nSetHinting(nativePtr, hinting.ordinal)
     }
 
+    // TODO 实现多行文字的测量
     private val measureOutput = FloatArray(5)
     fun measureText(text: String, paint: SkPaint?, outBounds: RectF): Float {
         checkPtr()
@@ -77,7 +89,8 @@ class SkFont {
     }
 
     private external fun nNew() : Long
-    private external fun nNewSize(size: Float) : Long
+    private external fun nNew2(fontFile: String, index: Int) : Long
+    private external fun nNew3(familyName: String, style: Int) : Long
     private external fun nFree(nativePtr: Long)
     private external fun nSetSize(nativePtr: Long, size: Float)
     private external fun nSetScaleX(nativePtr: Long, scaleX: Float)

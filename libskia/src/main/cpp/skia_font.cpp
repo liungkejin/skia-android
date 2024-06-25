@@ -5,20 +5,67 @@
 
 #include "skia.h"
 #include <jni.h>
+#include <android/log.h>
 
 #define SK_FONT ((SkFont *) native_ptr)
 
 extern "C"
 JNIEXPORT jlong JNICALL
 Java_com_bhs_android_skia_SkFont_nNew(JNIEnv *env, jobject thiz) {
-    return reinterpret_cast<jlong>(new SkFont);
+    auto mgr = SkFontMgr::RefDefault();
+    // TODO 实现根据当前语言，自动适配查找合适的文字
+    uint32_t utf32string[] = { 0x4F60 };
+    SkTypeface *typeface = mgr->matchFamilyStyleCharacter(nullptr,SkFontStyle::Normal(),
+                                                          nullptr, 0, utf32string[0]);
+//    __android_log_print(ANDROID_LOG_DEBUG, "ntest", "typeface: %p", typeface);
+    if (typeface) {
+        SkString familyName;
+        typeface->getFamilyName(&familyName);
+
+//        __android_log_print(ANDROID_LOG_DEBUG, "ntest", "typeface name: %s", familyName.c_str());
+        return reinterpret_cast<jlong>(new SkFont(sk_sp(typeface)));
+    }
+
+    return reinterpret_cast<jlong>(new SkFont());
 }
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_com_bhs_android_skia_SkFont_nNewSize(JNIEnv *env, jobject thiz, jfloat size) {
-    return reinterpret_cast<jlong>(new SkFont(nullptr, size));
+Java_com_bhs_android_skia_SkFont_nNew2(JNIEnv *env, jobject thiz, jstring font_file, jint index) {
+    const char *filePath = env->GetStringUTFChars(font_file, nullptr);
+
+    sk_sp<SkTypeface> face = SkTypeface::MakeFromFile(filePath, index);
+    jlong ptr = (jlong) (new SkFont(face));
+
+    env->ReleaseStringUTFChars(font_file, filePath);
+    return ptr;
 }
+
+extern "C"
+JNIEXPORT jlong JNICALL
+Java_com_bhs_android_skia_SkFont_nNew3(JNIEnv *env, jobject thiz, jstring family_name, jint style) {
+    const char *name = env->GetStringUTFChars(family_name, nullptr);
+    SkFontStyle fontStyle = SkFontStyle::Normal();
+    if (style == 1) {
+        fontStyle = SkFontStyle::Bold();
+    } else if (style == 2) {
+        fontStyle == SkFontStyle::Italic();
+    } else if (style == 3) {
+        fontStyle == SkFontStyle::BoldItalic();
+    }
+
+    sk_sp<SkTypeface> face = SkTypeface::MakeFromName(name, fontStyle);
+    jlong ptr = (jlong) (new SkFont(face));
+
+    env->ReleaseStringUTFChars(family_name, name);
+    return ptr;
+}
+
+//extern "C"
+//JNIEXPORT jlong JNICALL
+//Java_com_bhs_android_skia_SkFont_nNewSize(JNIEnv *env, jobject thiz, jfloat size) {
+//    return reinterpret_cast<jlong>(new SkFont(nullptr, size));
+//}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -80,4 +127,5 @@ Java_com_bhs_android_skia_SkFont_nMeasureText(JNIEnv *env, jobject thiz, jlong n
     out[2] = bounds.top();
     out[3] = bounds.right();
     out[4] = bounds.bottom();
+    env->ReleaseFloatArrayElements(output, out, 0);
 }
